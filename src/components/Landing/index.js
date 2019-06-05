@@ -18,11 +18,12 @@ class Landing extends Component {
             <h2>What's New?</h2>
             <ul>
               <li>
-                Dec/19: Graduating <a href="https://www.uottawa.ca/">uOttawa</a>
+                Dec/19: Graduating from{" "}
+                <a href="https://www.uottawa.ca/">uOttawa</a>
               </li>
               <li>
-                May/19: Started a new CO-OP at{" "}
-                <a href="https://www.ibm.com/ca-en">IBM</a>
+                May/19: Joined <a href="https://www.ibm.com/ca-en">IBM</a> as a
+                CO-OP
               </li>
               <li>
                 Sep/15: Started at <a href="https://www.uottawa.ca/">uOttawa</a>
