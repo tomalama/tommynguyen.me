@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import * as THREE from "three";
+import { Vector2, Vector3, Quaternion, Euler } from "three";
 import React3 from "react-three-renderer";
 import ObjectModel from "react-three-renderer-objects";
 import faceModel from "../../assets/models/face/face.obj";
@@ -7,105 +7,68 @@ import faceModel from "../../assets/models/face/face.obj";
 class Face extends Component {
   constructor(props) {
     super(props);
-    this.faceObject = React.createRef();
 
     this.state = {
-      faceObjectIsLoaded: false,
-      cameraPosition: new THREE.Vector3(0, 0, 2),
-      groupRotation: new THREE.Quaternion(),
+      width: window.innerWidth,
+      height: window.innerHeight,
+      groupRotation: new Quaternion(),
       scene: {}
     };
 
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.halfWidth = this.width / 2;
-    this.halfHeight = this.height / 2;
-
-    this.vector = new THREE.Vector3();
-    this.mouse2D = new THREE.Vector2();
-    this.mouseObj = {
-      x: 0,
-      y: 0,
-      percentX: 0,
-      percentY: 0,
-      lastX: 0,
-      lastY: 0
-    };
+    this.mouse = new Vector2();
   }
 
   componentDidMount() {
     const { scene } = this.refs;
-    const faceObjectIsLoaded = this.faceObject.current.state.loaded;
-    this.setState({ faceObjectIsLoaded, scene });
-    document.addEventListener("mousemove", this.onDocumentMouseMove, false);
-    window.addEventListener("resize", this.onWindowResize, false);
+    this.setState({ scene });
+    document.addEventListener("mousemove", this.onMouseMove);
+    window.addEventListener("resize", this.onResize);
   }
 
-  componentWillMount() {
-    this.onWindowResize = () => {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.halfWidth = this.width / 2;
-      this.halfHeight = this.height / 2;
-    };
+  onMouseMove = event => {
+    const { width, height } = this.state;
+    this.mouse.x = (event.pageX / width) * 2 - 1;
+    this.mouse.y = -(event.pageY / height) * 2 + 1;
+  };
 
-    this.onDocumentMouseMove = event => {
-      this.mouse2D.x = (event.pageX / this.width) * 2 - 1;
-      this.mouse2D.y = -(event.pageY / this.height) * 2 + 1;
-
-      this.mouseObj.x = event.pageX - this.halfWidth;
-      this.mouseObj.y = event.pageY - this.halfHeight;
-      this.mouseObj.percentX = Math.ceil(
-        (this.mouseObj.x / this.halfWidth) * 100
-      );
-      this.mouseObj.percentY = Math.ceil(
-        (this.mouseObj.y / this.halfHeight) * 100
-      );
-
-      this.mouseObj.lastX = event.pageX;
-      this.mouseObj.lastY = event.pageY;
-
-      this.updateRotationVector();
-    };
-  }
-
-  updateRotationVector() {
-    this.vector = new THREE.Vector3(
-      this.mouseObj.percentX,
-      this.mouseObj.percentY,
-      0
-    ).normalize();
-  }
+  onResize = () => {
+    this.setState({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+  };
 
   updateScene = () => {
-    const v = new THREE.Euler(-this.mouse2D.y, this.mouse2D.x, 0);
-    const q = new THREE.Quaternion().setFromEuler(v);
-    const newQuaternion = new THREE.Quaternion();
-    THREE.Quaternion.slerp(this.state.groupRotation, q, newQuaternion, 0.07);
-    let groupRotation = newQuaternion;
-    groupRotation = groupRotation.normalize();
+    const { groupRotation, width } = this.state;
+    const offset = width > 1000 ? 0.5 : 0;
+    const v = new Euler(-this.mouse.y, this.mouse.x - offset, 0);
+    const q = new Quaternion().setFromEuler(v);
+    const newQuaternion = new Quaternion();
+    Quaternion.slerp(groupRotation, q, newQuaternion, 0.07);
+    let newGroupRotation = newQuaternion;
+    newGroupRotation = newGroupRotation.normalize();
 
     this.setState({
-      groupRotation
+      groupRotation: newGroupRotation
     });
   };
 
   render() {
-    const {
-      faceObjectIsLoaded,
-      cameraPosition,
-      groupRotation,
-      scene
-    } = this.state;
+    const { width, height, groupRotation, scene } = this.state;
+    const cameraPosition = new Vector3(0, 0, 2);
+    const origin = new Vector3(0, 0, 0);
+
+    const cameraLookAt =
+      width > 1000 ? new Vector3(-1, 0, 0) : new Vector3(0, 0, 0);
+
     return (
-      <div>
-        {!faceObjectIsLoaded && <div>Loading...</div>}
+      <div className="Face__Wrapper">
         <React3
           mainCamera="camera"
           antialias
           shadowMapEnabled
-          width={this.width}
-          height={this.height}
+          width={width}
+          height={height}
           alpha={true}
           onAnimate={this.updateScene}
         >
@@ -114,18 +77,18 @@ class Face extends Component {
               key={`perspectiveCamera`}
               name="camera"
               fov={75}
-              aspect={this.width / this.height}
+              aspect={width / height}
               near={1}
               far={3000}
               position={cameraPosition}
-              lookAt={new THREE.Vector3(0, 0, 0)}
+              lookAt={cameraLookAt}
             />
             <group>
               <spotLight
                 key={`Light 1`}
                 color={0xffffff}
-                position={new THREE.Vector3(0, 300, 0)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(0, 300, 0)}
+                lookAt={origin}
                 castShadow
                 penumbra={2}
                 intensity={0.1}
@@ -136,48 +99,48 @@ class Face extends Component {
               <directionalLight
                 key={`Light 2`}
                 color={0xffffff}
-                position={new THREE.Vector3(0, 500, 100)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(0, 500, 100)}
+                lookAt={origin}
                 intensity={0.25}
               />
 
               <spotLight
                 key={`Light 3`}
                 color={0xffffff}
-                position={new THREE.Vector3(0, 100, 2000)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(0, 100, 2000)}
+                lookAt={origin}
                 intensity={0.15}
               />
 
               <spotLight
                 key={`Light 4`}
                 color={0xffffff}
-                position={new THREE.Vector3(-500, 0, 500)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(-500, 0, 500)}
+                lookAt={origin}
                 intensity={0.05}
               />
 
               <spotLight
                 key={`Light 5`}
                 color={0xffffff}
-                position={new THREE.Vector3(500, 0, 500)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(500, 0, 500)}
+                lookAt={origin}
                 intensity={0.05}
               />
 
               <spotLight
                 key={`Light 6`}
                 color={0xffd0b1}
-                position={new THREE.Vector3(-500, 450, 500)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(-500, 450, 500)}
+                lookAt={origin}
                 intensity={0.2}
               />
 
               <spotLight
                 key={`Light 7`}
                 color={0x80ecff}
-                position={new THREE.Vector3(500, 450, 500)}
-                lookAt={new THREE.Vector3(0, 0, 0)}
+                position={new Vector3(500, 450, 500)}
+                lookAt={origin}
                 intensity={0.2}
               />
             </group>
@@ -188,7 +151,6 @@ class Face extends Component {
                 model={faceModel}
                 scene={scene}
                 group="faceGroup"
-                ref={this.faceObject}
               />
             </group>
           </scene>
