@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { BrowserView, MobileView } from "react-device-detect";
 import Face from "./Face";
 
 class Landing extends Component {
@@ -13,7 +14,7 @@ class Landing extends Component {
             <a href="mailto:tommynguyen233@gmail.com">Contact</a>
           </h3>
         </div>
-        <div className="Landing__Content">
+        <div className="Landing__Section">
           <div className="Landing__News">
             <h2>What's New?</h2>
             <ul>
@@ -31,7 +32,14 @@ class Landing extends Component {
             </ul>
           </div>
         </div>
-        <Face />
+        <BrowserView>
+          <Face />
+        </BrowserView>
+        <MobileView>
+          <div className="Landing__Section">
+            For the full experience, view on desktop.
+          </div>
+        </MobileView>
       </div>
     );
   }
