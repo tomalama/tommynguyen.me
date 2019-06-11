@@ -9,6 +9,7 @@ class Landing extends Component {
         <div className="Landing__Header">
           <h1>Tommy Nguyen</h1>
           <h3>
+            <a href="https://www.github.com/tomalama/">Github</a> |{" "}
             <a href="https://www.linkedin.com/in/tommynguyen7/">LinkedIn</a> |{" "}
             <a href="https://resume.creddle.io/resume/fst3u4d7hrs">Resume</a> |{" "}
             <a href="mailto:tommynguyen233@gmail.com">Contact</a>
