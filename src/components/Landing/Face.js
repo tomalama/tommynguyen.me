@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import { Vector2, Vector3, Quaternion, Euler } from "three";
-import React3 from "react-three-renderer";
-import ObjectModel from "react-three-renderer-objects";
-import faceModel from "../../assets/models/face/face.obj";
+import React, { Component } from 'react';
+import { Vector2, Vector3, Quaternion, Euler } from 'three';
+import React3 from 'react-three-renderer';
+import ObjectModel from 'react-three-renderer-objects';
+import faceModel from '../../assets/models/face/face.obj';
 
 class Face extends Component {
   constructor(props) {
@@ -21,8 +21,8 @@ class Face extends Component {
   componentDidMount() {
     const { scene } = this.refs;
     this.setState({ scene });
-    document.addEventListener("mousemove", this.onMouseMove);
-    window.addEventListener("resize", this.onResize);
+    document.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('resize', this.onResize);
   }
 
   onMouseMove = event => {
@@ -62,9 +62,9 @@ class Face extends Component {
       width > 1000 ? new Vector3(-1, 0, 0) : new Vector3(0, 0, 0);
 
     return (
-      <div className="Face__Wrapper">
+      <div className='Face__Wrapper'>
         <React3
-          mainCamera="camera"
+          mainCamera='camera'
           antialias
           shadowMapEnabled
           width={width}
@@ -72,10 +72,10 @@ class Face extends Component {
           alpha={true}
           onAnimate={this.updateScene}
         >
-          <scene ref="scene">
+          <scene ref='scene'>
             <perspectiveCamera
               key={`perspectiveCamera`}
-              name="camera"
+              name='camera'
               fov={75}
               aspect={width / height}
               near={1}
@@ -145,12 +145,12 @@ class Face extends Component {
               />
             </group>
 
-            <group name="faceGroup" quaternion={groupRotation}>
+            <group name='faceGroup' quaternion={groupRotation}>
               <ObjectModel
-                name="faceObject"
+                name='faceObject'
                 model={faceModel}
                 scene={scene}
-                group="faceGroup"
+                group='faceGroup'
               />
             </group>
           </scene>
